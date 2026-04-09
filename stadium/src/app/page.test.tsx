@@ -1,0 +1,80 @@
+import '@testing-library/jest-dom'
+import { render, screen, fireEvent } from '@testing-library/react'
+import Home from './page'
+
+// Mock child components that might not render well in simple JSDOM without their own implementations
+jest.mock('./components/StadiumMap', () => {
+  return function MockStadiumMap() {
+    return <div data-testid="stadium-map">Stadium Map Component</div>
+  }
+})
+
+jest.mock('./components/FoodOrdering', () => {
+  return function MockFoodOrdering() {
+    return <div data-testid="food-ordering">Food Ordering Component</div>
+  }
+})
+
+describe('Home Navigation Tests', () => {
+  it('renders overview by default', () => {
+    render(<Home />)
+    expect(screen.getByText('Queue Prediction (XGBoost)')).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: /SVES Overview/i })).toHaveAttribute('aria-selected', 'true')
+  })
+
+  it('switches to map tab and renders StadiumMap', () => {
+    render(<Home />)
+    const mapTab = screen.getByRole('tab', { name: /Navigation/i })
+    fireEvent.click(mapTab)
+    expect(mapTab).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByTestId('stadium-map')).toBeInTheDocument()
+  })
+
+  it('switches to food tab and renders FoodOrdering', () => {
+    render(<Home />)
+    const foodTab = screen.getByRole('tab', { name: /POS Terminal/i })
+    fireEvent.click(foodTab)
+    expect(foodTab).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByTestId('food-ordering')).toBeInTheDocument()
+  })
+
+  it('switches to tickets tab and shows access context', () => {
+    render(<Home />)
+    fireEvent.click(screen.getByRole('tab', { name: /Identity Core/i }))
+    expect(screen.getByText('Access Identity Context')).toBeInTheDocument()
+    expect(screen.getByText('Championship Series')).toBeInTheDocument()
+  })
+
+  it('switches to AI assistant tab and interacts with chat', () => {
+    render(<Home />)
+    fireEvent.click(screen.getByRole('tab', { name: /AI Assistant/i }))
+    
+    // Check initial prompt
+    expect(screen.getByText(/Hello! I am your SVES LLM Assistant/i)).toBeInTheDocument()
+    
+    const input = screen.getByPlaceholderText(/Where is the nearest empty washroom/i)
+    const sendButton = screen.getByRole('button', { name: /Send message/i })
+    
+    // Type user msg
+    fireEvent.change(input, { target: { value: 'where is the food' } })
+    fireEvent.click(sendButton)
+    
+    // Check if user msg exists
+    expect(screen.getByText('where is the food')).toBeInTheDocument()
+    // Check if AI response about food exists
+    expect(screen.getByText(/Express Bar \(Sec 115\) is your safest bet for food/i)).toBeInTheDocument()
+  })
+  
+  it('handles safety alert acknowledge correctly', () => {
+    render(<Home />)
+    
+    // Default dashboard expected
+    const alertBtn = screen.getByRole('button', { name: /Acknowledge anomaly and deploy smart alert/i })
+    fireEvent.click(alertBtn)
+    
+    // Check text change
+    expect(screen.getByText('Optimization Executed ✅')).toBeInTheDocument()
+    expect(screen.getByText(/Load distribution adjusted/i)).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Acknowledge anomaly and deploy smart alert/i })).not.toBeInTheDocument()
+  })
+})

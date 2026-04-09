@@ -1,0 +1,467 @@
+/* ═══════════════════════════════════════════════════════════
+   page.module.css — SVES Enterprise Shell Layout
+   ═══════════════════════════════════════════════════════════ */
+
+/* ─── SHELL ─── */
+.shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── HEADER ─── */
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 32px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: linear-gradient(180deg, rgba(15, 23, 41, 0.6) 0%, transparent 100%);
+  animation: slideDown 0.5s ease;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--primary-gradient);
+  padding: 8px 14px;
+  border-radius: 8px;
+  box-shadow: var(--shadow-glow-primary);
+}
+
+.logoIcon {
+  font-size: 1rem;
+  color: #fff;
+}
+
+.logoText {
+  font-family: var(--font-headline);
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  color: #fff;
+}
+
+.headerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.headerTitle {
+  font-family: var(--font-headline);
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--on-surface);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.headerSub {
+  font-size: 0.78rem;
+  color: var(--on-surface-variant);
+  font-weight: 500;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.broadcast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(59, 130, 246, 0.06);
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  padding: 7px 14px;
+  border-radius: 8px;
+}
+
+.broadcastLabel {
+  font-family: var(--font-headline);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--primary);
+  background: rgba(59, 130, 246, 0.1);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.broadcastText {
+  font-size: 0.78rem;
+  color: var(--on-surface);
+  font-weight: 500;
+}
+
+.statusBadge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--on-surface-variant);
+  background: var(--surface-200);
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+}
+
+.liveDot {
+  width: 7px;
+  height: 7px;
+  background-color: var(--secondary);
+  border-radius: 50%;
+  animation: livePulse 2s ease infinite;
+}
+
+@keyframes livePulse {
+  0%   { opacity: 1; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+  50%  { opacity: 0.6; box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); }
+  100% { opacity: 1; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+/* ─── NAVIGATION ─── */
+.nav {
+  display: flex;
+  gap: 6px;
+  padding: 10px 32px;
+  border-bottom: 1px solid var(--border-subtle);
+  overflow-x: auto;
+  background: rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
+}
+
+.navBtn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--on-surface-variant);
+  font-family: var(--font-headline);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.navBtn:hover {
+  background: var(--surface-200);
+  color: var(--on-surface);
+}
+
+.navBtnActive {
+  background: var(--primary) !important;
+  color: #fff !important;
+  border-color: var(--primary-light);
+  box-shadow: var(--shadow-glow-primary);
+  font-weight: 600;
+}
+
+.navIcon {
+  font-size: 0.92rem;
+}
+
+/* ─── CONTENT AREA ─── */
+.content {
+  flex: 1;
+  padding: 24px 32px;
+  overflow-y: auto;
+}
+
+.fullWidth {
+  margin: 0 -32px;
+  width: calc(100% + 64px);
+}
+
+.centeredContent {
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* ─── SECTION TITLE ─── */
+.sectionTitle {
+  font-family: var(--font-headline);
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 18px;
+  color: var(--on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ─── DASHBOARD GRID ─── */
+.dashboardGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  animation: popIn 0.4s ease backwards;
+}
+
+@media (max-width: 900px) {
+  .dashboardGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dashCol {
+  display: flex;
+  flex-direction: column;
+}
+
+.cardStack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Metric Card */
+.metricCard {
+  padding: 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bigMetric {
+  font-size: 2.8rem;
+  line-height: 1;
+  font-weight: 700;
+  display: block;
+}
+
+.metricSub {
+  font-size: 0.82rem;
+  color: var(--on-surface-variant);
+  font-weight: 500;
+  display: block;
+  margin-top: 6px;
+}
+
+.metricEmoji {
+  font-size: 2.2rem;
+  opacity: 0.75;
+}
+
+/* Alert Card */
+.alertCard {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(15, 23, 41, 0.85) 100%) !important;
+  border-left: 3px solid var(--primary);
+}
+
+.alertContent {
+  padding: 24px;
+}
+
+.alertDesc {
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--on-surface-variant);
+  margin-bottom: 16px;
+}
+
+.alertBtn {
+  padding: 12px 22px;
+  background: var(--primary-gradient);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-family: var(--font-headline);
+  font-weight: 600;
+  font-size: 0.95rem;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-glow-primary);
+}
+
+.alertBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+}
+
+.alertBtn:active {
+  transform: translateY(0);
+}
+
+/* ─── TICKETS ─── */
+.validatedBadge {
+  background: var(--secondary);
+  color: #fff;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.72rem;
+  font-family: var(--font-headline);
+  letter-spacing: 0.04em;
+}
+
+.ticketLabel {
+  font-size: 0.68rem;
+  color: var(--on-surface-variant);
+  margin-bottom: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-family: var(--font-headline);
+}
+
+.ticketValue {
+  font-size: 1.8rem !important;
+}
+
+.ticketFooter {
+  font-size: 0.82rem;
+  color: var(--on-surface-variant);
+  margin-top: 20px;
+  text-align: center;
+  opacity: 0.7;
+}
+
+/* ─── CHAT ─── */
+.chatBox {
+  display: flex;
+  flex-direction: column;
+  height: 480px;
+  overflow: hidden;
+}
+
+.chatMessages {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chatMessages::-webkit-scrollbar {
+  width: 3px;
+}
+
+.chatMessages::-webkit-scrollbar-thumb {
+  background: var(--surface-400);
+  border-radius: 3px;
+}
+
+.chatBubble {
+  max-width: 80%;
+  padding: 11px 15px;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.chatBubbleAi {
+  align-self: flex-start;
+  background: var(--surface-300);
+  color: var(--on-surface);
+  border-bottom-left-radius: 4px;
+}
+
+.chatBubbleUser {
+  align-self: flex-end;
+  background: var(--primary);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.chatAvatar {
+  flex-shrink: 0;
+  font-size: 1rem;
+  margin-top: 1px;
+}
+
+.chatInputBar {
+  padding: 14px;
+  background: rgba(0, 0, 0, 0.2);
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  gap: 8px;
+}
+
+.chatInput {
+  flex: 1;
+  padding: 11px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-100);
+  color: var(--on-surface);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.chatInput:focus {
+  border-color: var(--primary);
+}
+
+.chatInput::placeholder {
+  color: var(--on-surface-variant);
+  opacity: 0.5;
+}
+
+.chatSendBtn {
+  padding: 0 20px;
+  background: var(--primary);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-family: var(--font-headline);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.chatSendBtn:hover {
+  background: var(--primary-dark);
+  box-shadow: var(--shadow-glow-primary);
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 768px) {
+  .header {
+    padding: 16px 20px;
+  }
+  
+  .headerTitle {
+    font-size: 1.2rem;
+  }
+  
+  .broadcast {
+    display: none;
+  }
+  
+  .nav {
+    padding: 8px 20px;
+  }
+  
+  .content {
+    padding: 16px 20px;
+  }
+  
+  .fullWidth {
+    margin: 0 -20px;
+    width: calc(100% + 40px);
+  }
+}
