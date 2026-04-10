@@ -1,5 +1,8 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { trackEvent, TelemetryEvents } from '../lib/analytics';
+import { getAssistantResponse } from '../lib/gemini';
+
 import styles from './page.module.css';
 import StadiumMap from './components/StadiumMap';
 import FoodOrdering from './components/FoodOrdering';
@@ -16,28 +19,36 @@ const TABS: { id: TabType; label: string; icon: string }[] = [
 ];
 
 export default function Home() {
-  const [rerouteAccepted, setRerouteAccepted] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
-  const [chatLog, setChatLog] = useState<{role: string, text: string}[]>([
-    { role: 'ai', text: 'Hello! I am your SVES LLM Assistant. How can I improve your event experience today?' }
-  ]);
   const [chatInput, setChatInput] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const [chatLog, setChatLog] = useState<{role: 'user' | 'ai', text: string}[]>([
+    { role: 'ai', text: 'Hello! I am your SVES LLM Assistant. How can I facilitate your venue experience today?' }
+  ]);
+  const [rerouteAccepted, setRerouteAccepted] = useState(false);
 
-  const handleSendChat = () => {
-    if (!chatInput.trim()) return;
-    const userMsg = chatInput.toLowerCase();
-    let responseText = "I am parsing SVES telemetry. Could you specify if you are looking for food, washroom status, or exit routing?";
+  // Track AI Assistant usage
+
+  const handleSendChat = async () => {
+    if (!chatInput.trim() || isTyping) return;
     
-    if (userMsg.includes('food') || userMsg.includes('hungry') || userMsg.includes('eat')) {
-      responseText = "Based on crowd density, Express Bar (Sec 115) is your safest bet for food right now with a < 2min predicted wait. Section 112 is facing high load anomalies.";
-    } else if (userMsg.includes('leave') || userMsg.includes('exit') || userMsg.includes('home')) {
-      responseText = "The post-game egress routing is currently active. The South Gate is at 10% load, whereas the North Gate is at 80% load. Plotting optimal egress to South Gate.";
-    } else if (userMsg.includes('washroom') || userMsg.includes('restroom') || userMsg.includes('bathroom')) {
-      responseText = "The Restroom near Section 110 (your current location) has a predicted wait of 2m. Would you like me to map out a path to the empty East Restroom instead?";
-    }
-    
-    setChatLog([...chatLog, {role: 'user', text: chatInput}, {role: 'ai', text: responseText}]);
+    const userMsg = chatInput;
     setChatInput('');
+    setChatLog(prev => [...prev, {role: 'user', text: userMsg}]);
+    setIsTyping(true);
+
+    await trackEvent(TelemetryEvents.AI_CHAT_MSG, { length: userMsg.length });
+
+    // Format history for Gemini
+    const history = chatLog.map(msg => ({
+      role: (msg.role === 'ai' ? 'model' : 'user') as 'model' | 'user',
+      parts: [{ text: msg.text }]
+    }));
+
+    const responseText = await getAssistantResponse(userMsg, history);
+    
+    setChatLog(prev => [...prev, {role: 'ai', text: responseText}]);
+    setIsTyping(false);
   };
 
   return (
@@ -77,7 +88,10 @@ export default function Home() {
             aria-controls={`panel-${tab.id}`}
             id={`tab-${tab.id}`}
             className={`${styles.navBtn} ${activeTab === tab.id ? styles.navBtnActive : ''}`}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => {
+              setActiveTab(tab.id);
+              trackEvent(TelemetryEvents.TAB_SWITCH, { tab: tab.id });
+            }}
           >
             <span className={styles.navIcon} aria-hidden="true">{tab.icon}</span>
             <span>{tab.label}</span>
@@ -143,6 +157,14 @@ export default function Home() {
                     <p>{msg.text}</p>
                   </div>
                 ))}
+                {isTyping && (
+                  <div className={`${styles.chatBubble} ${styles.chatBubbleAi}`}>
+                    <span className={styles.chatAvatar}>🤖</span>
+                    <div className={styles.typingIndicator}>
+                      <span></span><span></span><span></span>
+                    </div>
+                  </div>
+                )}
               </div>
               <div className={styles.chatInputBar}>
                 <label htmlFor="ai-chat-input" className="sr-only" aria-hidden="false" style={{ display: 'none' }}>Ask the assistant</label>
@@ -210,6 +232,7 @@ export default function Home() {
                       className={styles.alertBtn}
                       onClick={() => {
                         setRerouteAccepted(true);
+                        trackEvent(TelemetryEvents.SAFETY_ALERT_ACK, { type: 'gate_anomaly' });
                         setTimeout(() => setActiveTab('map'), 1200);
                       }}
                       aria-label="Acknowledge anomaly and deploy smart alert"

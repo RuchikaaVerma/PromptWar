@@ -1,19 +1,22 @@
 import '@testing-library/jest-dom'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+
 import Home from './page'
 
-// Mock child components that might not render well in simple JSDOM without their own implementations
-jest.mock('./components/StadiumMap', () => {
-  return function MockStadiumMap() {
-    return <div data-testid="stadium-map">Stadium Map Component</div>
+// Mock analytics
+jest.mock('../lib/analytics', () => ({
+  trackEvent: jest.fn(),
+  TelemetryEvents: {
+    TAB_SWITCH: 'tab_switch',
+    AI_CHAT_MSG: 'ai_chat_message',
+    SAFETY_ALERT_ACK: 'safety_alert_acknowledged',
   }
-})
+}));
 
-jest.mock('./components/FoodOrdering', () => {
-  return function MockFoodOrdering() {
-    return <div data-testid="food-ordering">Food Ordering Component</div>
-  }
-})
+// Mock child components
+jest.mock('./components/StadiumMap', () => function MockMap() { return <div data-testid="stadium-map">Stadium Map</div>; });
+jest.mock('./components/FoodOrdering', () => function MockFood() { return <div data-testid="food-ordering">Food Ordering</div>; });
+
 
 describe('Home Navigation Tests', () => {
   it('renders overview by default', () => {
@@ -45,7 +48,8 @@ describe('Home Navigation Tests', () => {
     expect(screen.getByText('Championship Series')).toBeInTheDocument()
   })
 
-  it('switches to AI assistant tab and interacts with chat', () => {
+  it('switches to AI assistant tab and interacts with chat', async () => {
+
     render(<Home />)
     fireEvent.click(screen.getByRole('tab', { name: /AI Assistant/i }))
     
@@ -60,10 +64,11 @@ describe('Home Navigation Tests', () => {
     fireEvent.click(sendButton)
     
     // Check if user msg exists
-    expect(screen.getByText('where is the food')).toBeInTheDocument()
+    await waitFor(() => expect(screen.getByText('where is the food')).toBeInTheDocument());
     // Check if AI response about food exists
-    expect(screen.getByText(/Express Bar \(Sec 115\) is your safest bet for food/i)).toBeInTheDocument()
+    await waitFor(() => expect(screen.getByText(/Express Bar \(Sec 115\) is your safest bet for food/i)).toBeInTheDocument());
   })
+
   
   it('handles safety alert acknowledge correctly', () => {
     render(<Home />)
